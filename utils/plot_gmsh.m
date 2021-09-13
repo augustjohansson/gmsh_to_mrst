@@ -1,4 +1,4 @@
-function plot_gmsh(filename, titletag)
+function [G, h] = plot_gmsh(filename, titletag)
 
     if nargin == 0
         filename = 'Gdata.mat';
@@ -21,10 +21,10 @@ function plot_gmsh(filename, titletag)
         for k = 1:numel(ut)
             idx = G.cells.tags == ut(k);
             dispif(mrstVerbose, 'Cell tag %d: %d cells\n', ut(k), sum(idx))
-            plotGrid(G, idx, 'facecolor', colors(k,:));
+            h{1} = plotGrid(G, idx, 'facecolor', colors(k,:));
         end
     else
-        plotGrid(G)
+        h{1} = plotGrid(G);
     end
 
     if isfield(G.faces, 'tags')
@@ -36,13 +36,9 @@ function plot_gmsh(filename, titletag)
         for k = 1:numel(ut)
             idx = G.faces.tags == ut(k);
             dispif(mrstVerbose, 'Face tag %d: %d faces\n', ut(k), sum(idx))
-            plotFaces(G, idx, 'linewidth', 2, 'edgecolor', colors(k,:));
+            h{2} = plotFaces(G, idx, 'linewidth', 2, 'edgecolor', colors(k,:));
         end
     end
-
-    grid on
-    axis equal tight
-    %title(sprintf('%s cells %d, faces %d, nodes %d', titletag, G.cells.num, G.faces.num, G.nodes.num))
 
 end
 
