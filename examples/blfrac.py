@@ -53,4 +53,4 @@ gmsh.write(model_name + ".msh")
 gmsh.finalize()
 
 from subprocess import call
-call(["python3", "gmsh_to_mrst.py", model_name + ".msh"])
+call(["python3", "../src/gmsh_to_mrst.py", model_name + ".msh"])
