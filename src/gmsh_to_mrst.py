@@ -22,6 +22,7 @@ def transpose(x):
 # Load model
 gmsh.open(model_name);
 gdim = gmsh.model.getDimension()
+assert gdim == 2, "This script is currently only for 2D"
 print('Model ' + gmsh.model.getCurrent() + ' (' + str(gdim) + 'D)')
 mrst_type = numpy.asarray(["Primordial Soup", "gmsh"], dtype=object)
 
