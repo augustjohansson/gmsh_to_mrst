@@ -1,14 +1,8 @@
-function [G, h] = plot_gmsh(filename, titletag)
+function [G, h] = plot_gmsh(filename)
 
     if nargin == 0
         filename = 'Gdata.mat';
-        titletag = '';
     end
-    if nargin == 1
-        titletag = '';
-    end
-    
-    mrstVerbose on
 
     G = load(filename);
     G = computeGeometry(G, 'findNeighbors', true);
@@ -41,4 +35,5 @@ function [G, h] = plot_gmsh(filename, titletag)
     end
 
 end
+
 
