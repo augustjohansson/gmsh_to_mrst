@@ -130,11 +130,11 @@ nodePos = numpy.arange(
 ).astype(numpy.uint64)
 mrst_faces = {
     "num": float(num_edges),
-    "nodePos": transpose(nodePos),
-    "nodes": transpose(all_edges.flatten()),
+    "nodePos": transpose(nodePos).astype(float),
+    "nodes": transpose(all_edges.flatten()).astype(float),
 }
 if len(numpy.unique(all_edge_labels)) > 1:
-    mrst_faces["tags"] = transpose(all_edge_labels)
+    mrst_faces["tags"] = transpose(all_edge_labels).astype(float)
 
 # Save elements as given by the edges
 diff = []
@@ -150,11 +150,11 @@ all_element_labels = numpy.concatenate(all_element_labels).astype(numpy.uint64)
 # than one unique tag)
 mrst_cells = {
     "num": float(num_elements),
-    "facePos": transpose(facePos),
-    "faces": transpose(numpy.concatenate(faces)),
+    "facePos": transpose(facePos).astype(float),
+    "faces": transpose(numpy.concatenate(faces)).astype(float),
 }
 if len(numpy.unique(all_element_labels)) > 1:
-    mrst_cells["tags"] = transpose(all_element_labels)
+    mrst_cells["tags"] = transpose(all_element_labels).astype(float)
 
 # Grid
 G = {
