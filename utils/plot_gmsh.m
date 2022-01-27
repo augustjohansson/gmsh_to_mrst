@@ -1,10 +1,17 @@
-function [G, h] = plot_gmsh(filename)
+function [G, h] = plot_gmsh(input)
 
     if nargin == 0
-        filename = 'Gdata.mat';
+        input = 'Gdata.mat';
     end
 
-    G = load(filename);
+    if isa(input, 'struct')
+        G = input;
+    elseif isa(input, 'char')
+        G = load(input);
+    else
+        error('Unknown input data of class %s', class(input));
+    end
+
     G = computeGeometry(G, 'findNeighbors', true);
 
     figure, hold on
@@ -30,7 +37,7 @@ function [G, h] = plot_gmsh(filename)
         for k = 1:numel(ut)
             idx = G.faces.tags == ut(k);
             dispif(mrstVerbose, 'Face tag %d: %d faces\n', ut(k), sum(idx))
-            h{2} = plotFaces(G, idx, 'linewidth', 2, 'edgecolor', colors(k,:));
+            h{2} = plotFaces(G, idx, 'linewidth', 4, 'edgecolor', colors(k,:));
         end
     end
 
