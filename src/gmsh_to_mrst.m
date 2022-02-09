@@ -88,7 +88,7 @@ function G = construct_2d(msh)
     G.faces.nodePos = (1:2:2*G.faces.num + 1)';
 
     % Initialize cells struct
-    G.cells.num = 0;
+    cells_num = zeros(numel(cell_types), 1);
     G.cells.faces = [];
     G.cells.facePos = 1;
 
@@ -105,20 +105,19 @@ function G = construct_2d(msh)
                 edgenumbers{e} = findedge(g, n1, n2);
             end
             edgenumbers = cell2mat(edgenumbers);
-            cells_num = size(edgenumbers, 1);
+            cells_num(k) = size(edgenumbers, 1);
 
             % Construct the mrst data structures
-            G.cells.num = G.cells.num + cells_num;
-
-            cells_faces = reshape(edgenumbers, cells_num, num_local_faces)';
+            cells_faces = reshape(edgenumbers, cells_num(k), num_local_faces)';
             cells_faces = cells_faces(:);
             G.cells.faces = [G.cells.faces; cells_faces];
 
-            cells_facePos = (num_local_faces:num_local_faces:num_local_faces*cells_num)';
+            cells_facePos = (num_local_faces:num_local_faces:num_local_faces*cells_num(k))';
             cells_facePos = cells_facePos + G.cells.facePos(end);
             G.cells.facePos = [G.cells.facePos; cells_facePos];
         end
     end
+    G.cells.num = sum(cells_num);
 
     % Tags on lines
     G.faces.tags = zeros(G.faces.num, 1);
@@ -127,9 +126,8 @@ function G = construct_2d(msh)
         G.faces.tags(edges) = msh.LINES(:, 3);
     end
 
-    % Tags on triangles and quads
     G.cells.tags = zeros(G.cells.num, 1);
-    cidx = [0; cumsum(num_cells)];
+    cidx = [0; cumsum(cells_num)];
     for k = 1:numel(cell_types)
         if isfield(msh, cell_types{k})
             G.cells.tags((cidx(k)+1):cidx(k+1)) = msh.(cell_types{k})(:, end);
