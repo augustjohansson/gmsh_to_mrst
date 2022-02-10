@@ -240,34 +240,34 @@ function G = construct_3d(msh)
     G.faces.nodePos = cumsum([1; nodePos_diff]);
 
     % Get cells to faces
-    G.cells.num = 0;
+    cells_num = zeros(numel(cell_types), 1);
     G.cells.faces = [];
     facePos_diff = [];
 
     for k = 1:numel(cell_types)
         if isfield(msh, cell_types{k})
             cell_nodes = msh.(cell_types{k});
-            G.cells.num = G.cells.num + size(cell_nodes, 1);
+            cells_num(k) = size(cell_nodes, 1);
             facePos_diff = [facePos_diff; repmat(num_cell_faces(k), size(cell_nodes, 1), 1)];
 
-            for j = 1:numel(face_types)
-                num_local_faces = numel(cells_faces_nodes{k}{j});
+            for ci = 1:cells_num(k)
+                for j = 1:numel(face_types)
+                    num_local_faces = numel(cells_faces_nodes{k}{j});
 
-                for i = 1:num_local_faces
-                    nodes = cells_faces_nodes{k}{j}{i} + 1;
-                    fn = cell_nodes(:, nodes);
-
-                    for m = 1:size(fn, 1)
-                        key = create_key(fn(m, :));
+                    for i = 1:num_local_faces
+                        nodes = cells_faces_nodes{k}{j}{i} + 1;
+                        fn = cell_nodes(ci, nodes);
+                        key = create_key(fn);
                         face_no = nodes_face{j}(key);
+                        dispif(mrstVerbose, [key, ' ', num2str(fn), ' ', num2str(face_no), '\n'])
                         G.cells.faces = [G.cells.faces; face_no];
                     end
                 end
-
             end
         end
     end
 
+    G.cells.num = sum(cells_num);
     G.cells.facePos = cumsum([1; facePos_diff]);
 
     % Tags on (only, for now) triangles or quads
