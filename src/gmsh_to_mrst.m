@@ -1,4 +1,4 @@
-function G = gmsh_to_mrst(filename)
+function [G, msh] = gmsh_to_mrst(filename)
 % Create MRST grid object out of m file from gmsh.
 %
 % SYNOPSIS
