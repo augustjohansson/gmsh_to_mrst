@@ -123,7 +123,8 @@ function G = construct_2d(msh)
     G.faces.tags = zeros(G.faces.num, 1);
     if isfield(msh, 'LINES')
         edges = findedge(g, msh.LINES(:, 1), msh.LINES(:, 2));
-        G.faces.tags(edges) = msh.LINES(:, 3);
+        ii = find(edges > 0);
+        G.faces.tags(edges(ii)) = msh.LINES(ii, 3);
     end
 
     G.cells.tags = zeros(G.cells.num, 1);
