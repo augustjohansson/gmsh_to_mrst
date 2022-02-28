@@ -1,4 +1,4 @@
-function [G, msh] = gmsh_to_mrst(filename)
+function [G, msh] = gmsh_to_mrst(filename, varargin)
 % Create MRST grid object out of m file from gmsh.
 %
 % SYNOPSIS
@@ -31,26 +31,28 @@ You should have received a copy of the GNU General Public License
 along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 %}
 
+    opt = struct('set_tag', false);
+    opt = merge_options(opt, varargin{:});
+
     run(filename);
 
     if mrstVerbose
         msh
     end
 
-    G.type = {'gmsh', filename};
-
     if msh.MIN(3) == msh.MAX(3)
-        G = construct_2d(msh);
+        G = construct_2d(msh, opt.set_tag);
     else
-        G = construct_3d(msh);
+        G = construct_3d(msh, opt.set_tag);
     end
+    G.type = 'gmsh';
 
     G = computeGeometry(G, 'findNeighbors', true);
 
 end
 
 
-function G = construct_2d(msh)
+function G = construct_2d(msh, set_tag)
 
     G.griddim = 2;
 
@@ -120,24 +122,28 @@ function G = construct_2d(msh)
     G.cells.num = sum(cells_num);
 
     % Tags on lines
-    G.faces.tags = zeros(G.faces.num, 1);
+    tagfield = 'tags';
+    if set_tag
+        tagfield = 'tag';
+    end
+    G.faces.(tagfield) = zeros(G.faces.num, 1);
     if isfield(msh, 'LINES')
         edges = findedge(g, msh.LINES(:, 1), msh.LINES(:, 2));
         ii = find(edges > 0);
-        G.faces.tags(edges(ii)) = msh.LINES(ii, 3);
+        G.faces.(tagfield)(edges(ii)) = msh.LINES(ii, 3);
     end
 
-    G.cells.tags = zeros(G.cells.num, 1);
+    G.cells.(tagfield) = zeros(G.cells.num, 1);
     cidx = [0; cumsum(cells_num)];
     for k = 1:numel(cell_types)
         if isfield(msh, cell_types{k})
-            G.cells.tags((cidx(k)+1):cidx(k+1)) = msh.(cell_types{k})(:, end);
+            G.cells.(tagfield)((cidx(k)+1):cidx(k+1)) = msh.(cell_types{k})(:, end);
         end
     end
 
 end
 
-function G = construct_3d(msh)
+function G = construct_3d(msh, set_tag)
 
     G.griddim = 3;
 
@@ -272,7 +278,11 @@ function G = construct_3d(msh)
     G.cells.facePos = cumsum([1; facePos_diff]);
 
     % Tags on (only, for now) triangles or quads
-    G.faces.tags = zeros(G.faces.num, 1);
+    tagfield = 'tags';
+    if set_tag
+        tagfield = 'tag';
+    end
+    G.faces.(tagfield) = zeros(G.faces.num, 1);
     for j = 1:numel(face_types)
         if isfield(msh, face_types{j})
             fns = msh.(face_types{j});
@@ -283,7 +293,7 @@ function G = construct_3d(msh)
             for i = 1:size(fns, 1)
                 key = create_key(fns(i, 1:end - 1));
                 face_no = nodes_face{j}(key);
-                G.faces.tags(face_no) = fns(i, end);
+                G.faces.(tagfield)(face_no) = fns(i, end);
             end
         end
     end
