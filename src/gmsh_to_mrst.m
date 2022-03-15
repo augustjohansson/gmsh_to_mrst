@@ -1,34 +1,35 @@
-function [G, msh] = gmsh_to_mrst(filename, varargin)
-% Create MRST grid object out of m file from gmsh.
+function [G, msh] = gmsh_to_mrst(filename)
+% Create MRST grid object out of m file from Gmsh.
 %
 % SYNOPSIS
-%  G = gmsh_to_mrst(filename)
-%
-% DESCRIPTION
-%  Convert an gmsh grid in the m-file filename to an MRST grid object.
-%  The m file from gmsh can be generated in the python interface by
-%  gmsh.write("grid.m")
+%   G = gmsh_to_mrst(filename)
 %
 % PARAMETERS
-%  filename  - The m file from gmsh, for example filename = 'grid.m'.
+%   filename  - The .m file from Gmsh.
+%
+% DESCRIPTION
+%   Convert an Gmsh grid in the m - file filename to an MRST grid object.
+%   The m file from Gmsh can be generated in the python interface by
+%   gmsh.write("grid.m") or the GUI by saving it as a file with extension
+%   .m.
 
 %{
-Copyright 2009-2021 SINTEF Digital, Mathematics & Cybernetics.
+  Copyright 2009 - 2021 SINTEF Digital, Mathematics & Cybernetics.
 
-This file is part of The MATLAB Reservoir Simulation Toolbox (MRST).
+  This file is part of The MATLAB Reservoir Simulation Toolbox (MRST).
 
-MRST is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+  MRST is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-MRST is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  MRST is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with MRST.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 %}
 
     opt = struct('set_tag', false);
@@ -63,7 +64,7 @@ function G = construct_2d(msh, set_tag)
     % Cells are either triangles or quads
     cell_types = {'TRIANGLES', 'QUADS'};
 
-    % Set up some constants (from gmsh manual). All faces (edges) are
+    % Set up some constants (from Gmsh manual). All faces (edges) are
     % composed of 2 nodes
     edges = {[[0, 1]; [1, 2]; [2, 0]] + 1,...
              [[0, 1]; [1, 2]; [2, 3]; [3, 0]] + 1 };
@@ -137,7 +138,7 @@ function G = construct_2d(msh, set_tag)
     cidx = [0; cumsum(cells_num)];
     for k = 1:numel(cell_types)
         if isfield(msh, cell_types{k})
-            G.cells.(tagfield)((cidx(k)+1):cidx(k+1)) = msh.(cell_types{k})(:, end);
+            G.cells.(tagfield)((cidx(k) + 1):cidx(k + 1)) = msh.(cell_types{k})(:, end);
         end
     end
 
@@ -151,7 +152,8 @@ function G = construct_3d(msh, set_tag)
     G.nodes.num = msh.nbNod;
     G.nodes.coords = msh.POS(:, 1:G.griddim);
 
-    % Cells are either tets, hexes, prisms or pyramids
+    % Cells are either tets, hexes, prisms or pyramids (the latter is
+    % not implemented, because it has not yet been enountered)
     cell_types = {'TETS', 'HEXAS', 'PRISMS'};
 
     % Faces are either triangles or quads

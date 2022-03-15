@@ -36,6 +36,5 @@ for dim in range(0, gdim + 1):
         gmsh.model.addPhysicalGroup(dim, [dt[1]], dt[1])
 
 gmsh.write(model_name + ".msh")
-gmsh.write(model_name + ".mesh")
 gmsh.write(model_name + ".m")
 gmsh.finalize()
